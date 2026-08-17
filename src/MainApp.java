@@ -5,9 +5,11 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 /** 
  * Program Name: MainApp.java
@@ -18,28 +20,57 @@ import java.time.format.DateTimeFormatter;
 public class MainApp extends JFrame
 {
 	private LocalDateTime deviceDateTime;
-	private LocalTime deviceTime;
 	private JTextField tfMainLabel;
-	
-	private ArrayList<Product> userProducts = new ArrayList<>();
 	private JButton btnEnter;
 	private JTextField tfInputField;
+	
+	private ArrayList<Product> userProducts = new ArrayList<>();
+	private String productName;
+	private LocalDate expiryDate;
+	
 	
 	private boolean isInputProductPhase = true;
 	
 	private void newButtonListener(ActionEvent e) {
-		String input;
-		if (tfInputField.getText().isEmpty() || tfInputField.getText().isBlank()) {
-			System.out.println("test");
+		if (tfInputField.getText().trim().isEmpty() || tfInputField.getText().equals("Enter a Product...") || 
+				tfInputField.getText().equals("Enter an Expiry Date...")) {
 			if (isInputProductPhase) {
 				JOptionPane.showMessageDialog(null, "Please Enter a Product Name!");
 			} else {
 				JOptionPane.showMessageDialog(null, "Please Enter an Expiry Date!");
 			}
 		} else {
-			input = tfInputField.getText();
+			if (isInputProductPhase) {
+				inputProductPhase();
+				isInputProductPhase = false;
+				tfInputField.setText("Enter an Expiry Date...");
+			} else {
+					inputExpiryDatePhase();
+			}
 		}
 	}
+	
+	private void inputProductPhase() {
+	  this.productName = tfInputField.getText();
+	}
+	
+	private void inputExpiryDatePhase() {
+		try {
+			this.expiryDate = LocalDate.parse(tfInputField.getText());
+		} catch (DateTimeParseException e) {
+			JOptionPane.showMessageDialog(null, "Invalid Date!\n(yyyy-MM-dd)");
+			return;
+		}
+		addProduct();
+		isInputProductPhase = true;
+		tfInputField.setText("Enter a Product...");
+	}
+	
+	private void addProduct() {
+		userProducts.add(new Product(productName,expiryDate));
+		System.out.println(userProducts.get(0).getName() + " " + userProducts.get(0).getExpiryDate());
+	}
+	
 	
 	MainApp(){
 		super("ZeroSpoil");
@@ -85,7 +116,7 @@ public class MainApp extends JFrame
 							@Override
 							public void focusGained(FocusEvent e)
 							{
-								if (tfInputField.getText().equals("Enter a Product..."))
+								if (tfInputField.getText().equals("Enter a Product...") || tfInputField.getText().equals("Enter an Expiry Date..."))
 								{
 									tfInputField.setText("");
 								}
@@ -96,7 +127,11 @@ public class MainApp extends JFrame
 							{
 								if (tfInputField.getText().trim().isEmpty())
 								{
-									tfInputField.setText("Enter a Product...");
+									if (isInputProductPhase) {
+										tfInputField.setText("Enter a Product...");
+									} else {
+										tfInputField.setText("Enter an Expiry Date...");
+									}
 								}
 							}
 						});
