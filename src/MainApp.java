@@ -19,12 +19,18 @@ import java.time.format.DateTimeParseException;
  */
 public class MainApp extends JFrame
 {
+	private JPanel pnlProductsSub;
 	private LocalDateTime deviceDateTime;
 	private JTextField tfMainLabel;
 	private JButton btnEnter;
 	private JTextField tfInputField;
 	
 	private ArrayList<Product> userProducts = new ArrayList<>();
+	private ArrayList<JPanel> pnlProductListVisuals = new ArrayList<>();
+	private ArrayList<JLabel> lblProductName = new ArrayList<>();
+	private ArrayList<JLabel> lblProductExpiry = new ArrayList<>();
+	private JButton[] jbRemoveButton; // do this later
+	
 	private String productName;
 	private LocalDate expiryDate;
 	
@@ -42,33 +48,52 @@ public class MainApp extends JFrame
 		} else {
 			if (isInputProductPhase) {
 				inputProductPhase();
-				isInputProductPhase = false;
-				tfInputField.setText("Enter an Expiry Date...");
 			} else {
-					inputExpiryDatePhase();
+				if (inputExpiryDatePhase()) {
+					addProductToList();
+				}
 			}
 		}
 	}
 	
 	private void inputProductPhase() {
 	  this.productName = tfInputField.getText();
+	  isInputProductPhase = false;
+		tfInputField.setText("Enter an Expiry Date...");
 	}
 	
-	private void inputExpiryDatePhase() {
+	private boolean inputExpiryDatePhase() {
 		try {
 			this.expiryDate = LocalDate.parse(tfInputField.getText());
 		} catch (DateTimeParseException e) {
 			JOptionPane.showMessageDialog(null, "Invalid Date!\n(yyyy-MM-dd)");
-			return;
+			return false;
 		}
-		addProduct();
+		userProducts.add(new Product(productName,expiryDate));
 		isInputProductPhase = true;
 		tfInputField.setText("Enter a Product...");
+		return true;
 	}
 	
-	private void addProduct() {
-		userProducts.add(new Product(productName,expiryDate));
-		System.out.println(userProducts.get(0).getName() + " " + userProducts.get(0).getExpiryDate());
+	private void addProductToList() {
+		for (int i = 0; i < userProducts.size(); i++) {
+			pnlProductListVisuals.add(new JPanel());
+			pnlProductListVisuals.get(i).setLayout(new BoxLayout(pnlProductListVisuals.get(i), BoxLayout.Y_AXIS));
+			pnlProductListVisuals.get(i).setBorder(BorderFactory.createLineBorder(Color.BLACK));
+			
+			
+			lblProductName.add(new JLabel(userProducts.get(i).getName()));
+			lblProductExpiry.add(new JLabel(userProducts.get(i).getExpiryDate().toString()));
+
+			
+			pnlProductListVisuals.get(i).add(lblProductName.get(i));
+			pnlProductListVisuals.get(i).add(lblProductExpiry.get(i));
+			
+			pnlProductsSub.add(pnlProductListVisuals.get(i));
+		}
+		
+		pnlProductsSub.revalidate();
+		pnlProductsSub.repaint();
 	}
 	
 	
@@ -93,8 +118,17 @@ public class MainApp extends JFrame
 		JPanel subLayout = new JPanel(new GridLayout(0,3,10,10));
 		
 		  // 1st Column - User's Products 
-			JPanel pnlProducts = new JPanel();
+			JPanel pnlProducts = new JPanel(new BorderLayout());
 			pnlProducts.setBorder(BorderFactory.createTitledBorder("Products"));
+			
+				pnlProductsSub = new JPanel();
+				pnlProductsSub.setLayout(new BoxLayout(pnlProductsSub,BoxLayout.Y_AXIS));
+				
+				JScrollPane scrollpane = new JScrollPane(pnlProductsSub);
+				scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+				scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+				
+			pnlProducts.add(scrollpane, BorderLayout.CENTER);
 				
 			// 2nd Column - User Inputs
 			JPanel pnlInputs = new JPanel(new BorderLayout());
