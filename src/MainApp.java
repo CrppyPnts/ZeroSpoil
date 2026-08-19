@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 
 /** 
  * Program Name: MainApp.java
@@ -27,8 +28,7 @@ public class MainApp extends JFrame
 	
 	private ArrayList<Product> userProducts = new ArrayList<>();
 	private ArrayList<JPanel> pnlProductListVisuals = new ArrayList<>();
-	private ArrayList<JLabel> lblProductName = new ArrayList<>();
-	private ArrayList<JLabel> lblProductExpiry = new ArrayList<>();
+	private ArrayList<JLabel> lblProductDetails = new ArrayList<>();
 	private JButton[] jbRemoveButton; // do this later
 	
 	private String productName;
@@ -79,21 +79,23 @@ public class MainApp extends JFrame
 		for (int i = 0; i < userProducts.size(); i++) {
 			pnlProductListVisuals.add(new JPanel());
 			pnlProductListVisuals.get(i).setLayout(new BoxLayout(pnlProductListVisuals.get(i), BoxLayout.Y_AXIS));
-			pnlProductListVisuals.get(i).setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			
+			lblProductDetails.add(new JLabel(userProducts.get(i).getName() + "     -     " 
+			+ calculateDaysLeft(userProducts.get(i).getExpiryDate())));
 			
-			lblProductName.add(new JLabel(userProducts.get(i).getName()));
-			lblProductExpiry.add(new JLabel(userProducts.get(i).getExpiryDate().toString()));
-
-			
-			pnlProductListVisuals.get(i).add(lblProductName.get(i));
-			pnlProductListVisuals.get(i).add(lblProductExpiry.get(i));
+			pnlProductListVisuals.get(i).add(lblProductDetails.get(i));
 			
 			pnlProductsSub.add(pnlProductListVisuals.get(i));
 		}
 		
 		pnlProductsSub.revalidate();
 		pnlProductsSub.repaint();
+	}
+	
+	private String calculateDaysLeft(LocalDate productExpiryDate) {
+		LocalDate currentDate = LocalDate.now();
+		long daysLeft = ChronoUnit.DAYS.between(currentDate, productExpiryDate);
+		return (daysLeft > 1) ?  "Expires in " + daysLeft + " days..." : "Expires in " + daysLeft + " day!!!";
 	}
 	
 	
