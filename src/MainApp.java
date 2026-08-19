@@ -90,6 +90,7 @@ public class MainApp extends JFrame
 			
 			lblProductDetails.add(new JLabel(userProducts.get(index).getName() + "     -     " 
 			+ calculateDaysLeft(userProducts.get(index).getExpiryDate())));
+			lblProductDetails.get(index).setFont(new Font("Arial", Font.BOLD, 12));
 			
 			pnlProductListVisuals.get(index).add(lblProductDetails.get(index));
 			
