@@ -76,17 +76,24 @@ public class MainApp extends JFrame
 	}
 	
 	private void addProductToList() {
+		int index = 0;
+		
 		for (int i = 0; i < userProducts.size(); i++) {
-			pnlProductListVisuals.add(new JPanel());
-			pnlProductListVisuals.get(i).setLayout(new BoxLayout(pnlProductListVisuals.get(i), BoxLayout.Y_AXIS));
-			
-			lblProductDetails.add(new JLabel(userProducts.get(i).getName() + "     -     " 
-			+ calculateDaysLeft(userProducts.get(i).getExpiryDate())));
-			
-			pnlProductListVisuals.get(i).add(lblProductDetails.get(i));
-			
-			pnlProductsSub.add(pnlProductListVisuals.get(i));
+			if (productName.equals(userProducts.get(i).getName())) {
+				index = i;
+				break;
+			}
 		}
+		
+			pnlProductListVisuals.add(new JPanel());
+			pnlProductListVisuals.get(index).setLayout(new BoxLayout(pnlProductListVisuals.get(index), BoxLayout.Y_AXIS));
+			
+			lblProductDetails.add(new JLabel(userProducts.get(index).getName() + "     -     " 
+			+ calculateDaysLeft(userProducts.get(index).getExpiryDate())));
+			
+			pnlProductListVisuals.get(index).add(lblProductDetails.get(index));
+			
+			pnlProductsSub.add(pnlProductListVisuals.get(index));
 		
 		pnlProductsSub.revalidate();
 		pnlProductsSub.repaint();
