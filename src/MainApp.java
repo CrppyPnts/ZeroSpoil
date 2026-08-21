@@ -27,13 +27,10 @@ public class MainApp extends JFrame
 	private JTextField tfInputField;
 	
 	private ArrayList<Product> userProducts = new ArrayList<>();
-	private ArrayList<JPanel> pnlProductListVisuals = new ArrayList<>();
-	private ArrayList<JLabel> lblProductDetails = new ArrayList<>();
 	private JButton[] jbRemoveButton; // do this later
 	
 	private String productName;
 	private LocalDate expiryDate;
-	
 	
 	private boolean isInputProductPhase = true;
 	
@@ -76,34 +73,46 @@ public class MainApp extends JFrame
 	}
 	
 	private void addProductToList() {
-		int index = 0;
-		
-		for (int i = 0; i < userProducts.size(); i++) {
-			if (productName.equals(userProducts.get(i).getName())) {
-				index = i;
-				break;
-			}
-		}
-		
-			pnlProductListVisuals.add(new JPanel());
-			pnlProductListVisuals.get(index).setLayout(new BoxLayout(pnlProductListVisuals.get(index), BoxLayout.Y_AXIS));
-			
-			lblProductDetails.add(new JLabel(userProducts.get(index).getName() + "     -     " 
-			+ calculateDaysLeft(userProducts.get(index).getExpiryDate())));
-			lblProductDetails.get(index).setFont(new Font("Arial", Font.BOLD, 12));
-			
-			pnlProductListVisuals.get(index).add(lblProductDetails.get(index));
-			
-			pnlProductsSub.add(pnlProductListVisuals.get(index));
-		
-		pnlProductsSub.revalidate();
-		pnlProductsSub.repaint();
-	}
+
+    int productIndex = userProducts.size() - 1;
+
+    JPanel productPanel = new JPanel();
+    productPanel.setLayout(new BoxLayout(productPanel, BoxLayout.Y_AXIS));
+
+    JLabel productDetails = new JLabel(
+        userProducts.get(productIndex).getName()
+        + "     -     "
+        + calculateDaysLeft(
+            userProducts.get(productIndex).getExpiryDate()
+        )
+    );
+
+    productDetails.setFont(
+        new Font("Arial", Font.BOLD, 12)
+    );
+
+    productPanel.add(productDetails);
+
+    pnlProductsSub.add(productPanel);
+
+    pnlProductsSub.revalidate();
+    pnlProductsSub.repaint();
+}
 	
 	private String calculateDaysLeft(LocalDate productExpiryDate) {
 		LocalDate currentDate = LocalDate.now();
 		long daysLeft = ChronoUnit.DAYS.between(currentDate, productExpiryDate);
-		return (daysLeft > 1) ?  "Expires in " + daysLeft + " days..." : "Expires in " + daysLeft + " day!!!";
+		if (daysLeft > 1) {
+			return "Expires in " + daysLeft + " days...";
+		} else if (daysLeft == 1) {
+			return "Expires in " + daysLeft + " day!!";
+		} else if (daysLeft == 0){
+			return "Expires today!!!";
+		} else if (daysLeft < 0){
+			return "Expired :(";
+		} else {
+			return "Error";
+		}
 	}
 	
 	
