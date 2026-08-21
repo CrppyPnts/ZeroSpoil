@@ -10,12 +10,16 @@ public class Product
 {
 	private String name;
 	private LocalDate expiryDate;
+	private long productID;
+	private static long nextProductID = 0;
 	
 	public Product(String name, LocalDate expiryDate){
 		this.name = name;
 		this.expiryDate = expiryDate;
+		this.productID = nextProductID++;
 	}
 	
+	//getters
 	public String getName() {
 		return this.name;
 	}
@@ -24,6 +28,11 @@ public class Product
 		return this.expiryDate;
 	}
 	
+	public long getProductID() {
+		return this.productID;
+	}
+	
+	//setters
 	public void setName(String value) {
 		this.name = value;
 	}

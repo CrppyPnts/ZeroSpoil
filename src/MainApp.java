@@ -27,14 +27,13 @@ public class MainApp extends JFrame
 	private JTextField tfInputField;
 	
 	private ArrayList<Product> userProducts = new ArrayList<>();
-	private JButton[] jbRemoveButton; // do this later
 	
 	private String productName;
 	private LocalDate expiryDate;
 	
 	private boolean isInputProductPhase = true;
 	
-	private void newButtonListener(ActionEvent e) {
+	private void newAddButtonListener(ActionEvent e) {
 		if (tfInputField.getText().trim().isEmpty() || tfInputField.getText().equals("Enter a Product...") || 
 				tfInputField.getText().equals("Enter an Expiry Date...")) {
 			if (isInputProductPhase) {
@@ -51,6 +50,19 @@ public class MainApp extends JFrame
 				}
 			}
 		}
+	}
+	
+	private void newRemoveButtonListener(ActionEvent e) {
+
+    long productID = Long.parseLong(e.getActionCommand());
+
+    for (int i = 0; i < userProducts.size(); i++) {
+
+        if (userProducts.get(i).getProductID() == productID) {
+            userProducts.remove(i);
+            break;
+        }
+    }
 	}
 	
 	private void inputProductPhase() {
@@ -76,24 +88,47 @@ public class MainApp extends JFrame
 
     int productIndex = userProducts.size() - 1;
 
-    JPanel productPanel = new JPanel();
-    productPanel.setLayout(new BoxLayout(productPanel, BoxLayout.Y_AXIS));
+    JPanel pnlProductPanel = new JPanel();
+    pnlProductPanel.setLayout(new BoxLayout(pnlProductPanel, BoxLayout.Y_AXIS));
 
-    JLabel productDetails = new JLabel(
+    JLabel lblProductDetails = new JLabel(
         userProducts.get(productIndex).getName()
         + "     -     "
         + calculateDaysLeft(
             userProducts.get(productIndex).getExpiryDate()
         )
     );
+    
+    JButton btnRemoveButton = new JButton("X");
+    btnRemoveButton.setActionCommand(String.valueOf(userProducts.get(productIndex).getProductID()));
+    btnRemoveButton.addActionListener((ae) -> {
+    	
+      long productID = Long.parseLong(ae.getActionCommand());
 
-    productDetails.setFont(
+      for (int i = 0; i < userProducts.size(); i++) {
+
+          if (userProducts.get(i).getProductID() == productID) {
+              userProducts.remove(i);
+              pnlProductsSub.remove(pnlProductPanel);
+              
+              pnlProductsSub.revalidate();
+              pnlProductsSub.repaint();
+              break;
+          }
+      }
+    		
+    });
+    
+    
+    lblProductDetails.setFont(
         new Font("Arial", Font.BOLD, 12)
     );
 
-    productPanel.add(productDetails);
+    
+    pnlProductPanel.add(lblProductDetails);
+    pnlProductPanel.add(btnRemoveButton);
 
-    pnlProductsSub.add(productPanel);
+    pnlProductsSub.add(pnlProductPanel);
 
     pnlProductsSub.revalidate();
     pnlProductsSub.repaint();
@@ -114,7 +149,6 @@ public class MainApp extends JFrame
 			return "Error";
 		}
 	}
-	
 	
 	MainApp(){
 		super("ZeroSpoil");
@@ -160,7 +194,7 @@ public class MainApp extends JFrame
 						btnEnter.setFont(new Font("Arial", Font.BOLD, 12));
 						btnEnter.setBackground(Color.MAGENTA);
 						btnEnter.setForeground(Color.WHITE);
-						btnEnter.addActionListener((ae) -> newButtonListener(ae));
+						btnEnter.addActionListener((ae) -> newAddButtonListener(ae));
 						
 					tfInputField = new JTextField("Enter a Product...");
 						tfInputField.setFont(new Font("Arial", Font.ITALIC, 12));
