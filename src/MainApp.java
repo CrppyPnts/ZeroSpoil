@@ -68,10 +68,16 @@ public class MainApp extends JFrame
     }
 	}
 	
-	private void inputProductPhase() {
+	private boolean inputProductPhase() {
 	  this.productName = tfInputField.getText();
+	  if (productName.length() > 10) {
+	  	JOptionPane.showMessageDialog(null, "Sorry Name Cannot be >=10 :(");
+	  	return false;
+	  }
+	  	
 	  isInputProductPhase = false;
 		tfInputField.setText("Enter an Expiry Date...");
+		return true;
 	}
 	
 	private boolean inputExpiryDatePhase() {
@@ -91,9 +97,12 @@ public class MainApp extends JFrame
 
     int productIndex = userProducts.size() - 1;
 
-    JPanel pnlProductPanel = new JPanel();
-    pnlProductPanel.setLayout(new BoxLayout(pnlProductPanel, BoxLayout.Y_AXIS));
-
+    JPanel pnlMainProductPanel = new JPanel();
+    pnlMainProductPanel.setLayout(new BoxLayout(pnlMainProductPanel, BoxLayout.Y_AXIS));
+    
+    JPanel pnlOrganizer = new JPanel();
+    pnlOrganizer.setLayout(new BoxLayout(pnlOrganizer, BoxLayout.X_AXIS));
+    
     JLabel lblProductDetails = new JLabel(
         userProducts.get(productIndex).getName()
         + "    -    "
@@ -112,7 +121,7 @@ public class MainApp extends JFrame
 
           if (userProducts.get(i).getProductID() == productID) {
               userProducts.remove(i);
-              pnlProductsSub.remove(pnlProductPanel);
+              pnlProductsSub.remove(pnlMainProductPanel);
               
               pnlProductsSub.revalidate();
               pnlProductsSub.repaint();
@@ -150,7 +159,7 @@ public class MainApp extends JFrame
 
     				lblProductDetails.setText(
     				    userProducts.get(i).getName()
-    				    + "    -    "
+    				    + " - "
     				    + calculateDaysLeft(
     				        userProducts.get(i).getExpiryDate()
     				    )
@@ -209,11 +218,14 @@ public class MainApp extends JFrame
     );
 
     
-    pnlProductPanel.add(lblProductDetails);
-    pnlProductPanel.add(btnRemoveButton);
-    pnlProductPanel.add(btnEditButton);
+    pnlOrganizer.add(lblProductDetails);
+    pnlOrganizer.add(Box.createHorizontalGlue());
+    pnlOrganizer.add(btnRemoveButton);
+    pnlOrganizer.add(btnEditButton);
 
-    pnlProductsSub.add(pnlProductPanel);
+    pnlMainProductPanel.add(pnlOrganizer);
+    
+    pnlProductsSub.add(pnlMainProductPanel);
 
     pnlProductsSub.revalidate();
     pnlProductsSub.repaint();
