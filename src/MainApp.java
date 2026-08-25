@@ -20,6 +20,9 @@ import java.time.temporal.ChronoUnit;
  */
 public class MainApp extends JFrame
 {
+	
+	private final String[] OPTIONS = {"Name","Date","Cancel"};
+	
 	private JPanel pnlProductsSub;
 	private LocalDateTime deviceDateTime;
 	private JTextField tfMainLabel;
@@ -93,7 +96,7 @@ public class MainApp extends JFrame
 
     JLabel lblProductDetails = new JLabel(
         userProducts.get(productIndex).getName()
-        + "     -     "
+        + "    -    "
         + calculateDaysLeft(
             userProducts.get(productIndex).getExpiryDate()
         )
@@ -119,6 +122,87 @@ public class MainApp extends JFrame
     		
     });
     
+    JButton btnEditButton = new JButton("Edit");
+    btnEditButton.setActionCommand(String.valueOf(userProducts.get(productIndex).getProductID()));
+    btnEditButton.addActionListener((ae) -> {
+    		
+    	long productID = Long.parseLong(ae.getActionCommand());
+    	String input;
+    	LocalDate newExpiry = null;
+    	
+    	int choice = JOptionPane.showOptionDialog(
+    			 null,
+    			 "Select a Detail to Edit...", 
+    			 "", 
+    			 JOptionPane.YES_NO_CANCEL_OPTION, 
+    			 JOptionPane.QUESTION_MESSAGE,
+    			 null, 
+    			 OPTIONS, 
+    			 OPTIONS[2]
+    	);
+    	 
+    	if ( choice == JOptionPane.YES_OPTION) {
+    		input = JOptionPane.showInputDialog("Enter a New Product Name:");
+    		
+      	for (int i = 0; i < userProducts.size(); i++) {
+    			if (userProducts.get(i).getProductID() == productID) {
+    				userProducts.get(i).setName(input);
+
+    				lblProductDetails.setText(
+    				    userProducts.get(i).getName()
+    				    + "    -    "
+    				    + calculateDaysLeft(
+    				        userProducts.get(i).getExpiryDate()
+    				    )
+    				);
+
+    				pnlProductsSub.revalidate();
+    				pnlProductsSub.repaint();
+           break;
+    			}
+      	}
+    	} else if ( choice == JOptionPane.NO_OPTION) {
+    		while (true) {
+    	    input = JOptionPane.showInputDialog(
+    	        "Enter a New Product Expiry Date:"
+    	    );
+
+    	    if (input == null) {
+    	        return;
+    	    }
+
+    	    try {
+    	        newExpiry = LocalDate.parse(input);
+    	        break;
+    	    } catch (DateTimeParseException e) {
+    	        JOptionPane.showMessageDialog(
+    	            null,
+    	            "Invalid Date!\n(yyyy-MM-dd)"
+    	        );
+    	    }
+    	}
+    		 
+    			for (int i = 0; i < userProducts.size(); i++) {
+      			if (userProducts.get(i).getProductID() == productID) {
+      				userProducts.get(i).setExpirydate(newExpiry);
+
+      				lblProductDetails.setText(
+      				    userProducts.get(i).getName()
+      				    + "    -    "
+      				    + calculateDaysLeft(
+      				        userProducts.get(i).getExpiryDate()
+      				    )
+      				);
+
+      				pnlProductsSub.revalidate();
+      				pnlProductsSub.repaint();
+             break;
+      			}
+        	}
+    	} else {
+    		 JOptionPane.showMessageDialog(null, "Edit Cancelled..");
+    	}
+    });
     
     lblProductDetails.setFont(
         new Font("Arial", Font.BOLD, 12)
@@ -127,6 +211,7 @@ public class MainApp extends JFrame
     
     pnlProductPanel.add(lblProductDetails);
     pnlProductPanel.add(btnRemoveButton);
+    pnlProductPanel.add(btnEditButton);
 
     pnlProductsSub.add(pnlProductPanel);
 
