@@ -19,6 +19,12 @@ public class Product
 		this.productID = nextProductID++;
 	}
 	
+	public Product(String name, LocalDate expiryDate, long productID) {
+		this.name = name;
+		this.expiryDate = expiryDate;
+		this.productID = productID;
+	}
+	
 	//getters
 	public String getName() {
 		return this.name;

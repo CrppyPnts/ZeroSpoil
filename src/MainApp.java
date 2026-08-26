@@ -1,13 +1,19 @@
 import javax.swing.*;
+import java.io.File;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
@@ -36,6 +42,83 @@ public class MainApp extends JFrame
 	
 	private boolean isInputProductPhase = true;
 	
+	// File I/O Methods
+	private void createSaveFile() {
+		
+		try {
+			File file = new File("products.csv");
+			FileWriter fileWriter = new FileWriter(file);
+			
+			fileWriter.write("productID/Name/Expiry\n");
+			
+			for (Product product : userProducts) {
+				fileWriter.write(product.getProductID() +  ","
+						+ product.getName() + ","
+						+ product.getExpiryDate()
+						+ "\n"
+						);
+			}
+			
+			fileWriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void loadSaveFile() { 
+		try {
+			Scanner scanner = new Scanner(new File("products.csv"));
+			
+			scanner.nextLine();
+			
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+			
+				String[] itemData = line.split(",");
+				
+				long productID = Long.parseLong(itemData[0]);
+				String name = itemData[1];
+				LocalDate expiryDate = LocalDate.parse(itemData[2]);
+
+				 Product product = new Product(
+			        name,
+			        expiryDate,
+			        productID
+			    );
+
+			    userProducts.add(product);
+
+			    addProductToList(product);
+			}
+			
+			scanner.close();
+		} catch (FileNotFoundException e) {
+			JOptionPane.showMessageDialog(null, "No Save Files Found... Create a New One!");
+		}
+		
+	}
+	
+	private void saveData() {
+		try {
+			FileWriter fileWriter = new FileWriter("products.csv");
+			
+			for (Product product : userProducts) {
+				fileWriter.write(product.getProductID() +  ","
+						+ product.getName() + ","
+						+ product.getExpiryDate()
+						+ "\n"
+						);
+			}
+		
+			
+			fileWriter.close();
+		}catch(FileNotFoundException e) {
+			JOptionPane.showMessageDialog(null, "No Save Files Found... Create a New One!");
+		}catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+	// Listener Methods
 	private void newAddButtonListener(ActionEvent e) {
 		if (tfInputField.getText().trim().isEmpty() || tfInputField.getText().equals("Enter a Product...") || 
 				tfInputField.getText().equals("Enter an Expiry Date...")) {
@@ -48,26 +131,12 @@ public class MainApp extends JFrame
 			if (isInputProductPhase) {
 				inputProductPhase();
 			} else {
-				if (inputExpiryDatePhase()) {
-					addProductToList();
-				}
+				inputExpiryDatePhase();
 			}
 		}
 	}
 	
-	private void newRemoveButtonListener(ActionEvent e) {
-
-    long productID = Long.parseLong(e.getActionCommand());
-
-    for (int i = 0; i < userProducts.size(); i++) {
-
-        if (userProducts.get(i).getProductID() == productID) {
-            userProducts.remove(i);
-            break;
-        }
-    }
-	}
-	
+	// App Logic Methods
 	private boolean inputProductPhase() {
 	  this.productName = tfInputField.getText();
 	  if (productName.length() > 10) {
@@ -87,15 +156,20 @@ public class MainApp extends JFrame
 			JOptionPane.showMessageDialog(null, "Invalid Date!\n(yyyy-MM-dd)");
 			return false;
 		}
-		userProducts.add(new Product(productName,expiryDate));
+		
+		Product product = new Product(productName,expiryDate);
+		
+		userProducts.add(product);
+		
 		isInputProductPhase = true;
 		tfInputField.setText("Enter a Product...");
+		
+		addProductToList(product);
+		
 		return true;
 	}
 	
-	private void addProductToList() {
-
-    int productIndex = userProducts.size() - 1;
+	private void addProductToList(Product product) {
 
     JPanel pnlMainProductPanel = new JPanel();
     pnlMainProductPanel.setLayout(new BoxLayout(pnlMainProductPanel, BoxLayout.Y_AXIS));
@@ -104,15 +178,16 @@ public class MainApp extends JFrame
     pnlOrganizer.setLayout(new BoxLayout(pnlOrganizer, BoxLayout.X_AXIS));
     
     JLabel lblProductDetails = new JLabel(
-        userProducts.get(productIndex).getName()
+        product.getName()
         + "    -    "
         + calculateDaysLeft(
-            userProducts.get(productIndex).getExpiryDate()
+            product.getExpiryDate()
         )
     );
     
+    // Remove Button - List
     JButton btnRemoveButton = new JButton("X");
-    btnRemoveButton.setActionCommand(String.valueOf(userProducts.get(productIndex).getProductID()));
+    btnRemoveButton.setActionCommand(String.valueOf(product.getProductID()));
     btnRemoveButton.addActionListener((ae) -> {
     	
       long productID = Long.parseLong(ae.getActionCommand());
@@ -131,8 +206,9 @@ public class MainApp extends JFrame
     		
     });
     
+    // Edit Button - List
     JButton btnEditButton = new JButton("Edit");
-    btnEditButton.setActionCommand(String.valueOf(userProducts.get(productIndex).getProductID()));
+    btnEditButton.setActionCommand(String.valueOf(product.getProductID()));
     btnEditButton.addActionListener((ae) -> {
     		
     	long productID = Long.parseLong(ae.getActionCommand());
@@ -247,10 +323,43 @@ public class MainApp extends JFrame
 		}
 	}
 	
+	// Main Object
 	MainApp(){
 		super("ZeroSpoil");
 		this.setLayout(new BorderLayout());
 		
+			// Main Menu
+		
+			JMenuBar menuBar = new JMenuBar();
+				
+				// MenuBar Items
+				JMenu moSettings = new JMenu("⚙");
+				
+					Path filePath = Paths.get("products.csv");
+					JMenuItem miSave = new JMenuItem("Save File");
+					miSave.addActionListener((ae)-> {
+						if (userProducts.size() < 1) {
+							JOptionPane.showMessageDialog(null, "There's nothing to Save Currently! Enter an Item. ");
+						} else {
+							if (Files.exists(filePath)) {
+								saveData();
+							} else {
+								createSaveFile();
+							}
+						}
+					});
+					
+					JMenuItem miLoad = new JMenuItem("Load File");
+					miLoad.addActionListener((ae)-> {
+						loadSaveFile();
+					});
+					
+				moSettings.add(miSave);
+				moSettings.add(miLoad);
+				
+			menuBar.add(moSettings);
+			
+		this.setJMenuBar(menuBar);
 			// North - Time's and Dates
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd     HH:mm:ss");
 			deviceDateTime = LocalDateTime.now();
