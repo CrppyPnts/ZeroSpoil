@@ -67,6 +67,9 @@ public class MainApp extends JFrame
 	
 	private void loadSaveFile() { 
 		try {
+			
+			userProducts.clear();
+			pnlProductsSub.removeAll();
 			Scanner scanner = new Scanner(new File("products.csv"));
 			
 			scanner.nextLine();
@@ -92,6 +95,9 @@ public class MainApp extends JFrame
 			}
 			
 			scanner.close();
+			
+			pnlProductsSub.revalidate();
+      pnlProductsSub.repaint();
 		} catch (FileNotFoundException e) {
 			JOptionPane.showMessageDialog(null, "No Save Files Found... Create a New One!");
 		}
@@ -198,6 +204,7 @@ public class MainApp extends JFrame
               userProducts.remove(i);
               pnlProductsSub.remove(pnlMainProductPanel);
               
+              saveData();
               pnlProductsSub.revalidate();
               pnlProductsSub.repaint();
               break;
@@ -241,6 +248,7 @@ public class MainApp extends JFrame
     				    )
     				);
 
+    				saveData();
     				pnlProductsSub.revalidate();
     				pnlProductsSub.repaint();
            break;
@@ -279,6 +287,7 @@ public class MainApp extends JFrame
       				    )
       				);
 
+      				saveData();
       				pnlProductsSub.revalidate();
       				pnlProductsSub.repaint();
              break;
