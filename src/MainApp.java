@@ -49,7 +49,7 @@ public class MainApp extends JFrame
 			File file = new File("products.csv");
 			FileWriter fileWriter = new FileWriter(file);
 			
-			fileWriter.write("productID/Name/Expiry\n");
+			fileWriter.write("ProductID,Name,Expiry\n");
 			
 			for (Product product : userProducts) {
 				fileWriter.write(product.getProductID() +  ","
@@ -107,6 +107,8 @@ public class MainApp extends JFrame
 	private void saveData() {
 		try {
 			FileWriter fileWriter = new FileWriter("products.csv");
+			
+			fileWriter.write("ProductID,Name,Expiry\n");
 			
 			for (Product product : userProducts) {
 				fileWriter.write(product.getProductID() +  ","
