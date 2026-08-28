@@ -32,7 +32,12 @@ public class MainApp extends JFrame
 	private JPanel pnlProductsSub;
 	private LocalDateTime deviceDateTime;
 	private JTextField tfMainLabel;
+	
+	
 	private JButton btnEnter;
+	private JButton btnSearch;
+	private JButton btnFilter;
+	private JTextField tfFilterInputField;
 	private JTextField tfInputField;
 	
 	private ArrayList<Product> userProducts = new ArrayList<>();
@@ -388,16 +393,26 @@ public class MainApp extends JFrame
 		JPanel subLayout = new JPanel(new GridLayout(0,3,10,10));
 		
 		  // 1st Column - User's Products 
-			JPanel pnlProducts = new JPanel(new BorderLayout());
+			JPanel pnlProducts = new JPanel();
+			pnlProducts.setLayout(new BorderLayout());
 			pnlProducts.setBorder(BorderFactory.createTitledBorder("Products"));
+			
+				JPanel pnlSearchSection = new JPanel();
+				pnlSearchSection.setLayout(new BoxLayout(pnlSearchSection, BoxLayout.X_AXIS));
+					tfFilterInputField = new JTextField("Search a Product...");
+					btnSearch = new JButton("Search");
+					btnFilter = new JButton("=");
+				pnlSearchSection.add(tfFilterInputField);
+				pnlSearchSection.add(btnSearch);
+				pnlSearchSection.add(btnFilter);
 			
 				pnlProductsSub = new JPanel();
 				pnlProductsSub.setLayout(new BoxLayout(pnlProductsSub,BoxLayout.Y_AXIS));
-				
 				JScrollPane scrollpane = new JScrollPane(pnlProductsSub);
 				scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 				scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 				
+			pnlProducts.add(pnlSearchSection, BorderLayout.NORTH);
 			pnlProducts.add(scrollpane, BorderLayout.CENTER);
 				
 			// 2nd Column - User Inputs
