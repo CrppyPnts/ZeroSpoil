@@ -37,7 +37,7 @@ public class MainApp extends JFrame
 	private JButton btnEnter;
 	private JButton btnSearch;
 	private JButton btnFilter;
-	private JTextField tfFilterInputField;
+	private JTextField tfSearchInputField;
 	private JTextField tfInputField;
 	
 	private ArrayList<Product> userProducts = new ArrayList<>();
@@ -147,6 +147,30 @@ public class MainApp extends JFrame
 				inputExpiryDatePhase();
 			}
 		}
+	}
+	
+	private void newSearchButtonListener(ActionEvent e) {
+		if (userProducts.size() == 0) {
+			JOptionPane.showMessageDialog(null, "List is Empty...");
+			return;
+		}
+		String input = tfSearchInputField.getText().trim();
+		pnlProductsSub.removeAll();
+		
+		if(input.isEmpty() || input.equals("Search a Product...")) {
+			for (Product product : userProducts) {
+				addProductToList(product);
+			}
+		} else {
+			for (Product product : userProducts) {
+				if(product.getName().toLowerCase().contains(input.toLowerCase())) {
+					addProductToList(product);
+				}
+			}
+		}
+		
+		revalidate();
+		repaint();
 	}
 	
 	// App Logic Methods
@@ -397,15 +421,41 @@ public class MainApp extends JFrame
 			pnlProducts.setLayout(new BorderLayout());
 			pnlProducts.setBorder(BorderFactory.createTitledBorder("Products"));
 			
+			  // Search Bar & Filtering
 				JPanel pnlSearchSection = new JPanel();
 				pnlSearchSection.setLayout(new BoxLayout(pnlSearchSection, BoxLayout.X_AXIS));
-					tfFilterInputField = new JTextField("Search a Product...");
+				
+				tfSearchInputField = new JTextField("Search a Product...");
+				tfSearchInputField.addFocusListener(new FocusAdapter() {
+					@Override
+					public void focusGained(FocusEvent e)
+					{
+						if (tfSearchInputField.getText().equals("Search a Product..."))
+						{
+							tfSearchInputField.setText("");
+						}
+					}
+
+					@Override
+					public void focusLost(FocusEvent e)
+					{
+						if (tfSearchInputField.getText().trim().isEmpty())
+						{
+							tfSearchInputField.setText("Search a Product...");
+						}
+					}
+				});
+				
 					btnSearch = new JButton("Search");
 					btnFilter = new JButton("=");
-				pnlSearchSection.add(tfFilterInputField);
+					
+				btnSearch.addActionListener((ae) -> newSearchButtonListener(ae));
+				
+				pnlSearchSection.add(tfSearchInputField);
 				pnlSearchSection.add(btnSearch);
 				pnlSearchSection.add(btnFilter);
 			
+				// List w/ Scrollbar
 				pnlProductsSub = new JPanel();
 				pnlProductsSub.setLayout(new BoxLayout(pnlProductsSub,BoxLayout.Y_AXIS));
 				JScrollPane scrollpane = new JScrollPane(pnlProductsSub);
