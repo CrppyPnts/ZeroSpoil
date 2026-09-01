@@ -28,6 +28,14 @@ public class MainApp extends JFrame
 {
 	
 	private final String[] OPTIONS = {"Name","Date","Cancel"};
+	private final String[] TIME_FILTERS = {
+	    "All Products",
+	    "Expires Today",
+	    "Within 1 Day",
+	    "Within 1 Week",
+	    "Within 1 Month",
+	    "Already Expired"
+	};
 	
 	private JPanel pnlProductsSub;
 	private LocalDateTime deviceDateTime;
@@ -36,7 +44,7 @@ public class MainApp extends JFrame
 	
 	private JButton btnEnter;
 	private JButton btnSearch;
-	private JButton btnFilter;
+	private JComboBox<String> cbTimeFilters;
 	private JTextField tfSearchInputField;
 	private JTextField tfInputField;
 	
@@ -154,19 +162,117 @@ public class MainApp extends JFrame
 			JOptionPane.showMessageDialog(null, "List is Empty...");
 			return;
 		}
-		String input = tfSearchInputField.getText().trim();
+		
+		String searchBarInput = tfSearchInputField.getText().trim();
 		pnlProductsSub.removeAll();
 		
-		if(input.isEmpty() || input.equals("Search a Product...")) {
+		if(searchBarInput.isEmpty() || searchBarInput.equals("Search a Product...")) {
 			for (Product product : userProducts) {
 				addProductToList(product);
 			}
 		} else {
 			for (Product product : userProducts) {
-				if(product.getName().toLowerCase().contains(input.toLowerCase())) {
+				if(product.getName().toLowerCase().contains(searchBarInput.toLowerCase())) {
 					addProductToList(product);
 				}
 			}
+		}
+		
+		revalidate();
+		repaint();
+	}
+	
+	private void newCBFiltersListener(ActionEvent e) {
+		if (userProducts.size() == 0) {
+			JOptionPane.showMessageDialog(null, "List is Empty...");
+			return;
+		}
+		
+		String searchBarInput = tfSearchInputField.getText().trim();
+		String timefilter = (String) cbTimeFilters.getSelectedItem();
+		pnlProductsSub.removeAll();
+		
+		
+		if (timefilter.equals("Expires Today")) {
+			
+			for (Product product : userProducts) {
+				long daysLeft = getDaysLeft(product.getExpiryDate());
+				boolean matchesSearch = searchBarInput.isEmpty() 
+						|| searchBarInput.equals("Search a Product...")
+						|| product.getName().toLowerCase().contains(searchBarInput);
+				
+				if (daysLeft == 0 && matchesSearch) {
+					addProductToList(product);
+				}
+				
+			}
+			
+		} else if (timefilter.equals("Within 1 Day")) {
+			
+			for (Product product : userProducts) {
+				long daysLeft = getDaysLeft(product.getExpiryDate());
+				boolean matchesSearch = searchBarInput.isEmpty() 
+						|| searchBarInput.equals("Search a Product...")
+						|| product.getName().toLowerCase().contains(searchBarInput);
+				
+				if (daysLeft >= 0 && daysLeft <= 1 && matchesSearch) {
+					addProductToList(product);
+				}
+				
+			}
+			
+		} else if (timefilter.equals("Within 1 Week")) {
+			for (Product product : userProducts) {
+				long daysLeft = getDaysLeft(product.getExpiryDate());
+				boolean matchesSearch = searchBarInput.isEmpty() 
+						|| searchBarInput.equals("Search a Product...")
+						|| product.getName().toLowerCase().contains(searchBarInput);
+				
+				if (daysLeft >= 0 && daysLeft <= 7  && matchesSearch) {
+					addProductToList(product);
+				}
+				
+			}
+		} else if (timefilter.equals("Within 1 Month")) {
+			
+			for (Product product : userProducts) {
+				long daysLeft = getDaysLeft(product.getExpiryDate());
+				boolean matchesSearch = searchBarInput.isEmpty() 
+						|| searchBarInput.equals("Search a Product...")
+						|| product.getName().toLowerCase().contains(searchBarInput);
+				
+				if (daysLeft >= 0 && daysLeft <= 30  && matchesSearch) {
+					addProductToList(product);
+				}
+				
+			}
+			
+		} else if (timefilter.equals("Already Expired")) {
+			
+			for (Product product : userProducts) {
+				long daysLeft = getDaysLeft(product.getExpiryDate());
+				boolean matchesSearch = searchBarInput.isEmpty() 
+						|| searchBarInput.equals("Search a Product...")
+						|| product.getName().toLowerCase().contains(searchBarInput);
+				
+				if (daysLeft < 0  && matchesSearch) {
+					addProductToList(product);
+				}
+				
+			}
+			
+		} else {
+			
+			for (Product product : userProducts) {
+				boolean matchesSearch = searchBarInput.isEmpty() 
+						|| searchBarInput.equals("Search a Product...")
+						|| product.getName().toLowerCase().contains(searchBarInput);
+				
+				if (matchesSearch) {
+					addProductToList(product);
+				}
+			}
+			
 		}
 		
 		revalidate();
@@ -363,6 +469,11 @@ public class MainApp extends JFrame
 		}
 	}
 	
+	// Helper Methods
+	private long getDaysLeft(LocalDate expiryDate) {
+		return ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
+	}
+	
 	// Main Object
 	MainApp(){
 		super("ZeroSpoil");
@@ -447,13 +558,14 @@ public class MainApp extends JFrame
 				});
 				
 					btnSearch = new JButton("Search");
-					btnFilter = new JButton("=");
+					cbTimeFilters = new JComboBox<>(TIME_FILTERS);
 					
 				btnSearch.addActionListener((ae) -> newSearchButtonListener(ae));
+				cbTimeFilters.addActionListener((ae) -> newCBFiltersListener(ae));
 				
 				pnlSearchSection.add(tfSearchInputField);
 				pnlSearchSection.add(btnSearch);
-				pnlSearchSection.add(btnFilter);
+				pnlSearchSection.add(cbTimeFilters);
 			
 				// List w/ Scrollbar
 				pnlProductsSub = new JPanel();
