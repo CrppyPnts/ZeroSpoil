@@ -641,7 +641,7 @@ public class MainApp extends JFrame
 			
 			
 		
-		this.setSize(900,800);
+		this.setSize(1300,800);
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 	}
