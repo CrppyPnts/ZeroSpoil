@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,6 +38,13 @@ public class MainApp extends JFrame
 	    "Already Expired"
 	};
 	
+	private final String[] SORT_FILTERS = {
+			"By Date",
+			"By Date (Reverse)",
+			"By Alphabet",
+			"By Alphabet (Reverse)"
+	};
+	
 	private JPanel pnlProductsSub;
 	private LocalDateTime deviceDateTime;
 	private JTextField tfMainLabel;
@@ -45,6 +53,7 @@ public class MainApp extends JFrame
 	private JButton btnEnter;
 	private JButton btnSearch;
 	private JComboBox<String> cbTimeFilters;
+	private JComboBox<String> cbSortFilters;
 	private JTextField tfSearchInputField;
 	private JTextField tfInputField;
 	
@@ -279,6 +288,33 @@ public class MainApp extends JFrame
 		repaint();
 	}
 	
+	private void newCBSortListener(ActionEvent e ) {
+		if (userProducts.size() == 0) {
+			JOptionPane.showMessageDialog(null, "List is Empty...");
+			return;
+		}
+		
+		String input = (String) cbSortFilters.getSelectedItem();
+		pnlProductsSub.removeAll();
+		
+		if (input.equals("By Date")) {
+			userProducts.sort(Comparator.comparing(Product::getExpiryDate));
+		} else if (input.equals("By Date (Reverse)")) {
+			userProducts.sort(Comparator.comparing(Product::getExpiryDate).reversed());
+		} else if (input.equals("By Alphabet")) {
+			userProducts.sort(Comparator.comparing(Product::getName));
+		} else if (input.equals("By Alphabet (Reverse)")) {
+			userProducts.sort(Comparator.comparing(Product::getName).reversed());
+		}
+		
+		for (Product product : userProducts) {
+			addProductToList(product);
+		}
+		
+		revalidate();
+		repaint();
+	}
+	
 	// App Logic Methods
 	private boolean inputProductPhase() {
 	  this.productName = tfInputField.getText();
@@ -469,7 +505,7 @@ public class MainApp extends JFrame
 		}
 	}
 	
-	// Helper Methods
+	// Misc Methods
 	private long getDaysLeft(LocalDate expiryDate) {
 		return ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
 	}
@@ -559,13 +595,16 @@ public class MainApp extends JFrame
 				
 					btnSearch = new JButton("Search");
 					cbTimeFilters = new JComboBox<>(TIME_FILTERS);
+					cbSortFilters = new JComboBox<>(SORT_FILTERS);
 					
 				btnSearch.addActionListener((ae) -> newSearchButtonListener(ae));
 				cbTimeFilters.addActionListener((ae) -> newCBFiltersListener(ae));
+			  cbSortFilters.addActionListener((ae) -> newCBSortListener(ae));
 				
 				pnlSearchSection.add(tfSearchInputField);
 				pnlSearchSection.add(btnSearch);
 				pnlSearchSection.add(cbTimeFilters);
+				pnlSearchSection.add(cbSortFilters);
 			
 				// List w/ Scrollbar
 				pnlProductsSub = new JPanel();
@@ -636,12 +675,9 @@ public class MainApp extends JFrame
 				tfMainLabel.setText(deviceDateTime.format(formatter));
 				});
 			
-		timer.start();
+		timer.start();		
 		
-			
-			
-		
-		this.setSize(1300,800);
+		this.setSize(1500,800);
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 	}
